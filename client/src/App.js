@@ -1,21 +1,14 @@
 // client/src/App.js
 import React, { useEffect, useRef, useState } from "react";
 import './App.css';
-
-
-
 import { io } from "socket.io-client";
 
 // Your Render backend URL
 const socket = io("https://websocket-chat-server-zhe9.onrender.com");
 
-
- 
 socket.on("connect", () => {
   console.log("Connected to server");
 });
-
-
 
 function App() {
   const [username, setUsername] = useState("");
@@ -37,13 +30,26 @@ function App() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
 
+  // ✅ Time Formatter Without Seconds
+  const getTime = () => {
+    const now = new Date();
+    const hour = now.getHours();
+    const minute = now.getMinutes().toString().padStart(2, '0');
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minute} ${ampm}`;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (message.trim()) {
+      const formattedTime = getTime();
+      console.log("Formatted time:", formattedTime); // Debug
+
       socket.emit("chat message", {
         user: username,
         text: message,
-        time: new Date().toLocaleTimeString(),
+        time: formattedTime,
       });
       setMessage("");
     }
@@ -82,9 +88,7 @@ function App() {
             {chat.map((msg, idx) => (
               <div
                 key={idx}
-                className={`chat-bubble ${
-                  msg.user === username ? "own" : "other"
-                }`}
+                className={`chat-bubble ${msg.user === username ? "own" : "other"}`}
               >
                 <div className="bubble-header">
                   <span className="username">
