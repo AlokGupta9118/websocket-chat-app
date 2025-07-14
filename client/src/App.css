@@ -1,0 +1,170 @@
+/* App.css */
+
+:root {
+  --bg-light: #f5f5f5;
+  --bg-dark: #1f1f1f;
+  --bubble-own: #d1e7dd;
+  --bubble-other: #f1f1f1;
+  --text: #111;
+  --text-light: #eee;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.app-container {
+  background-color: var(--bg-light);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dark {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+.chat-wrapper {
+  background-color: #fff;
+  width: 100%;
+  max-width: 600px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.chat-header {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  background: #6200ee;
+  color: #fff;
+}
+
+.dark .chat-header {
+  background: #333;
+}
+
+.chat-box {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-bubble {
+  max-width: 75%;
+  margin: 0.4rem 0;
+  padding: 0.8rem;
+  border-radius: 12px;
+  background-color: var(--bubble-other);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chat-bubble.own {
+  align-self: flex-end;
+  background-color: var(--bubble-own);
+}
+
+.bubble-header {
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.chat-input {
+  display: flex;
+  padding: 1rem;
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+.chat-input button {
+  margin-left: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  background-color: #6200ee;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.dark .chat-wrapper {
+  background-color: #2a2a2a;
+}
+
+.dark .chat-box {
+  background-color: #121212;
+}
+
+.dark .chat-bubble.own {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+.dark .chat-bubble {
+  background-color: #343a40;
+  color: #fff;
+}
+
+.dark .chat-input {
+  background-color: #1f1f1f;
+}
+
+.dark .chat-input input {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.enter-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+}
+
+.enter-screen input {
+  padding: 0.75rem;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+.enter-screen button {
+  padding: 0.75rem 1.5rem;
+  background-color: #6200ee;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
