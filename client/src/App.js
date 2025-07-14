@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import './App.css';
 
-const socket = io("https://your-vercel-project-name.vercel.app", {
+const socket = io("https://websocket-chat-app.vercel.app", {
   path: "/api/socketio"
 });
 
