@@ -1,15 +1,19 @@
 // client/src/App.js
 import React, { useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
 import './App.css';
 
-const socket = io("https://websocket-chat-app-pi.vercel.app", {
-  path: "/api/socketio"
+
+
+import { io } from "socket.io-client";
+
+// Your Render backend URL
+const socket = io("https://websocket-chat-server-zhe9.onrender.com");
+
+
+ 
+socket.on("connect", () => {
+  console.log("Connected to server");
 });
-
-
-
-
 
 
 
