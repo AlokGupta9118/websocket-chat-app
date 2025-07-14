@@ -1,4 +1,3 @@
-// api/index.js
 import { Server } from "socket.io";
 
 let io;
@@ -6,7 +5,7 @@ let io;
 export default function handler(req, res) {
   if (!res.socket.server.io) {
     console.log("🔌 Starting Socket.IO server...");
-    
+
     io = new Server(res.socket.server, {
       path: "/api/socketio",
       addTrailingSlash: false,
@@ -16,7 +15,7 @@ export default function handler(req, res) {
       console.log("🟢 New user connected");
 
       socket.on("chat message", (msg) => {
-        console.log("💬 Message received:", msg);
+        // 🔁 Don't override msg.time here
         io.emit("chat message", msg);
       });
 
@@ -27,7 +26,7 @@ export default function handler(req, res) {
 
     res.socket.server.io = io;
   } else {
-    console.log("✅ Socket.IO server already running");
+    console.log("✅ Socket.IO server already running.");
   }
 
   res.end();
