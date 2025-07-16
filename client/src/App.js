@@ -1,149 +1,108 @@
-// client/src/App.js (Updated for Modern UI with Features)
-import React, { useEffect, useRef, useState } from "react";
-import "./App.css";
-import { io } from "socket.io-client";
+// client/src/App.js
+import React, { useState, useEffect, useRef } from 'react';
+import io from 'socket.io-client';
+import './App.css';
+import ChatBox from './components/ChatBox';
 
-const socket = io("https://websocket-chat-server-zhe9.onrender.com");
+const socket = io('http://localhost:5000');
 
 function App() {
-  const [username, setUsername] = useState("");
-  const [entered, setEntered] = useState(false);
-  const [message, setMessage] = useState("");
-  const [chat, setChat] = useState([]);
-  const [typingUser, setTypingUser] = useState(null);
-  const [onlineUsers, setOnlineUsers] = useState(0);
-  const [darkMode, setDarkMode] = useState(false);
-  const chatEndRef = useRef(null);
+  const [messages, setMessages] = useState([]);
+  const [userCount, setUserCount] = useState(0);
+  const [typingUser, setTypingUser] = useState('');
+  const [username, setUsername] = useState('');
+  const [joined, setJoined] = useState(false);
+  const [activeUsers, setActiveUsers] = useState([]);
+  const [audio] = useState(new Audio('/notification.mp3'));
 
-  useEffect(() => {
-    socket.on("chat message", (msg) => {
-      setChat((prev) => [...prev, msg]);
-    });
-
-    socket.on("user typing", (user) => {
-      if (user !== username) {
-        setTypingUser(user);
-        setTimeout(() => setTypingUser(null), 1500);
-      }
-    });
-
-    socket.on("user count", (count) => {
-      setOnlineUsers(count);
-    });
-
-    socket.on("user joined", (user) => {
-      setChat((prev) => [...prev, { user: "System", text: `${user} joined the chat!`, system: true }]);
-    });
-
-    socket.on("user left", (user) => {
-      setChat((prev) => [...prev, { user: "System", text: `${user} left the chat.`, system: true }]);
-    });
-
-    return () => {
-      socket.off("chat message");
-      socket.off("user typing");
-      socket.off("user count");
-      socket.off("user joined");
-      socket.off("user left");
+  const handleSendMessage = (payload) => {
+    const msgData = {
+      user: username,
+      ...payload,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      reactions: [],
     };
-  }, [username]);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat]);
-
-  const getTime = () => {
-    const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes().toString().padStart(2, "0");
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minute} ${ampm}`;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (message.trim()) {
-      const time = getTime();
-      socket.emit("chat message", {
-        user: username,
-        text: message,
-        time,
-      });
-      setMessage("");
-    }
+    socket.emit('chatMessage', msgData);
+    setMessages((prev) => [...prev, { ...msgData, fromSelf: true }]);
   };
 
   const handleTyping = () => {
-    socket.emit("user typing", username);
+    socket.emit('typing', username);
   };
 
-  const handleEnterChat = () => {
-    if (username.trim()) {
-      setEntered(true);
-      socket.emit("user joined", username);
+  const handleReaction = (index, reaction) => {
+    const updatedMessages = [...messages];
+    updatedMessages[index].reactions.push({ user: username, emoji: reaction });
+    setMessages(updatedMessages);
+  };
+
+  const handleClearChat = () => {
+    setMessages([]);
+  };
+
+  useEffect(() => {
+    socket.on('chatMessage', (msg) => {
+      if (msg.user !== username) {
+        setMessages((prev) => [...prev, { ...msg, fromSelf: false }]);
+        audio.play();
+      }
+    });
+
+    socket.on('userCount', (count) => {
+      setUserCount(count);
+    });
+
+    socket.on('activeUsers', (userList) => {
+      setActiveUsers(userList);
+    });
+
+    socket.on('typing', (user) => {
+      if (user !== username) {
+        setTypingUser(user);
+        setTimeout(() => setTypingUser(''), 3000);
+      }
+    });
+
+    return () => {
+      socket.off('chatMessage');
+      socket.off('userCount');
+      socket.off('activeUsers');
+      socket.off('typing');
+    };
+  }, [username]);
+
+  const handleJoin = () => {
+    if (username.trim() !== '') {
+      setJoined(true);
+      socket.emit('join', username);
     }
   };
 
-  const toggleDarkMode = () => setDarkMode(!darkMode);
-  const themeClass = darkMode ? "dark" : "";
-
   return (
-    <div className={`app-container ${themeClass}`}>
-      {!entered ? (
+    <div className="app-container">
+      {!joined ? (
         <div className="enter-screen">
-          <h2>👋 Enter Your Name</h2>
+          <h2>Enter your name to join</h2>
           <input
+            type="text"
+            placeholder="Your name"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter your name..."
           />
-          <button onClick={handleEnterChat}>Join Chat</button>
+          <button onClick={handleJoin}>Join Chat</button>
         </div>
       ) : (
-        <div className="chat-wrapper">
-          <div className="chat-header">
-            <h2>💬 Chat Room</h2>
-            <div className="status-bar">
-              <span className="online-users">🟢 {onlineUsers} online</span>
-              <button onClick={toggleDarkMode} className="dark-toggle">
-                {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
-              </button>
-            </div>
-          </div>
-
-          <div className="chat-box">
-            {chat.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`chat-bubble ${
-                  msg.system ? "system-msg" : msg.user === username ? "own" : "other"
-                } fade-in`}
-              >
-                {!msg.system && (
-                  <div className="bubble-header">
-                    <span className="username">{msg.user === username ? "You" : msg.user}</span>
-                    <span className="time">{msg.time}</span>
-                  </div>
-                )}
-                <div className="bubble-text">{msg.text}</div>
-              </div>
-            ))}
-            {typingUser && <div className="typing">✍️ {typingUser} is typing...</div>}
-            <div ref={chatEndRef} />
-          </div>
-
-          <form onSubmit={handleSubmit} className="chat-input">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={handleTyping}
-              placeholder="Type your message..."
-            />
-            <button type="submit">Send</button>
-          </form>
-        </div>
+        <ChatBox
+          messages={messages}
+          onSendMessage={handleSendMessage}
+          onTyping={handleTyping}
+          typingUser={typingUser}
+          username={username}
+          userCount={userCount}
+          activeUsers={activeUsers}
+          onReact={handleReaction}
+          onClearChat={handleClearChat}
+        />
       )}
     </div>
   );
