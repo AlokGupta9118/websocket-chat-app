@@ -1,6 +1,7 @@
 // client/src/components/ChatBox.jsx
 import React, { useState, useRef, useEffect } from 'react';
-import MessageBubble from './MessageBubble';
+import MessageBubble from './MessageBubble.jsx';
+
 import TypingIndicator from './TypingIndicator';
 import EmojiPicker from './EmojiPicker';
 
